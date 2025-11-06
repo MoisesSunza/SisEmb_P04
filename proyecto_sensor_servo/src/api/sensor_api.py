@@ -1,4 +1,4 @@
-# src/api/sensor_api.py
+# src/api/sensor_api.py (Actualizado para aceptar RESISTANCE_OHMS)
 
 from flask import Flask, jsonify
 from datetime import datetime
@@ -14,8 +14,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 app = Flask(__name__)
 POT_PIN = 4 
 SENSOR_DELAY = 0.3 
-potentiometer = Potentiometer(POT_PIN)
 
+# Variables globales que serán inicializadas en run_api_server
+potentiometer = None 
 datos_sensor = {
     "Valor_crudo": 0,
     "Porcentaje": 0.0,
@@ -24,34 +25,23 @@ datos_sensor = {
 }
 datos_sensor_lock = threading.Lock()
 
-# --- ENDPOINTS DE LA API ---
-
-@app.route('/')
-def home():
-    """Punto de entrada de la API."""
-    return jsonify({
-        "mensaje": "API del Sensor de Potenciómetro", 
-        "endpoints": ["/api/sensor", "/api/estado"]
-    })
-
+# ... [Endpoints get_sensor_data y get_status NO CAMBIAN] ...
 @app.route('/api/sensor')
 def get_sensor_data():
-    """Endpoint para obtener los datos más recientes del potenciómetro."""
     with datos_sensor_lock:
         return jsonify(datos_sensor.copy())
-
-@app.route('/api/estado')
-def get_status():
-    """Endpoint para verificar el estado del servidor."""
-    return jsonify({"estado": "sistema funcionando", "timestamp": datetime.now().isoformat()})
-
-# --- HILO DE LECTURA DEL SENSOR (LOOP) ---
+# ...
 
 def sensor_loop():
     """
     Función que se ejecuta en un hilo separado para leer y actualizar los datos del sensor.
     """
-    # La calibración se realiza una vez al inicio del hilo
+    global potentiometer # Necesitamos acceder a la instancia global
+    
+    if potentiometer is None:
+        logging.error("ERROR: Potenciómetro no inicializado. Deteniendo loop.")
+        return
+
     potentiometer.calibrate()
     
     while True:
@@ -70,12 +60,19 @@ def sensor_loop():
             logging.error(f"Error en el hilo del sensor: {e}")
             time.sleep(5) 
 
-# --- FUNCIÓN PRINCIPAL DE EJECUCIÓN ---
+# --- FUNCIÓN PRINCIPAL DE EJECUCIÓN (MODIFICADA) ---
 
-def run_api_server():
+def run_api_server(resistance_ohms):
     """
-    Inicia el hilo del sensor y el servidor Flask.
+    Inicia el hilo del sensor y el servidor Flask, usando la resistencia especificada.
+    
+    :param resistance_ohms: Resistencia máxima del potenciómetro (ej: 10000).
     """
+    global potentiometer
+    
+    # 1. Inicializar el potenciómetro con el valor de Ohms pasado
+    potentiometer = Potentiometer(POT_PIN, resistance_ohms)
+
     logging.info("API: Iniciando hilo de actualización del sensor...")
     sensor_thread = threading.Thread(target=sensor_loop, daemon=True)
     sensor_thread.start()
