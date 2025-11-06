@@ -1,0 +1,12 @@
+# requirements.txt
+# Dependencias del proyecto (Tarea 1: Estructura de Archivos RECOMENDADA) [cite: 20, 21]
+
+# 1. Servidor Web (API)
+Flask==3.0.3
+
+# 2. Cliente API y manejo de peticiones
+requests==2.32.3
+
+# 3. Control de Hardware (Específico para Raspberry Pi)
+# RPi.GPIO es necesario para el Potenciómetro y el Servomotor.
+RPi.GPIO==0.7.1
