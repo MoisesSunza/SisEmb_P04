@@ -8,10 +8,6 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class SensorAPIClient:
-    """
-    Librería cliente para consumir datos de la API (Consumo de API - Tarea 3).
-    Implementa manejo de errores y reintentos para conexiones fallidas (Tarea 3).
-    """
 
     def __init__(self, base_url, max_retries=5, retry_delay=2):
         """
@@ -53,4 +49,5 @@ class SensorAPIClient:
             time.sleep(self.retry_delay)
 
         logging.error(f"Cliente API: Fallo al conectar después de {self.max_retries} intentos. (Manejo de Errores - Tarea 3)")
+
         return None
