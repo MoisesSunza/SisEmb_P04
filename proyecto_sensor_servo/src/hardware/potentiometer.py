@@ -10,9 +10,6 @@ class Potentiometer:
     """
     Librería para leer un potenciómetro conectado en un circuito RC (Resistor-Capacitor).
     Acepta el valor de resistencia máxima para un cálculo preciso de Ohms.
-    
-    Documentación (Tarea 2):
-    - Parámetros: pin (int), max_ohms (int)
     """
 
     def __init__(self, pin, max_ohms):
@@ -60,7 +57,7 @@ class Potentiometer:
         time.sleep(1) 
         
         self.min_value = self.read_raw_value()
-        self.max_value = self.read_raw_value() + 1 # Asegurar que max > min para evitar división por cero
+        self.max_value = self.read_raw_value() + 1 # Asegurar que max > min para evitar división por 0
         
         logging.info(f"Potenciómetro: Valores de referencia establecidos: Min={self.min_value}, Max={self.max_value}")
 
@@ -80,7 +77,7 @@ class Potentiometer:
             normalized = (value - self.min_value) / range_val * 100.0
             normalized = max(0, min(100, normalized))
         
-        # CÁLCULO PRECISO DE RESISTENCIA: Usa self.max_ohms
         resistance_approx = (normalized / 100) * self.max_ohms
         
+
         return (value, normalized, resistance_approx)
