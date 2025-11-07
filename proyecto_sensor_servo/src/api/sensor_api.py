@@ -25,12 +25,10 @@ datos_sensor = {
 }
 datos_sensor_lock = threading.Lock()
 
-# ... [Endpoints get_sensor_data y get_status NO CAMBIAN] ...
 @app.route('/api/sensor')
 def get_sensor_data():
     with datos_sensor_lock:
         return jsonify(datos_sensor.copy())
-# ...
 
 def sensor_loop():
     """
@@ -60,7 +58,7 @@ def sensor_loop():
             logging.error(f"Error en el hilo del sensor: {e}")
             time.sleep(5) 
 
-# --- FUNCIÓN PRINCIPAL DE EJECUCIÓN (MODIFICADA) ---
+# --- FUNCIÓN PRINCIPAL DE EJECUCIÓN ---
 
 def run_api_server(resistance_ohms):
     """
@@ -78,4 +76,5 @@ def run_api_server(resistance_ohms):
     sensor_thread.start()
 
     logging.info("API: Iniciando servidor Flask en http://0.0.0.0:5000")
+
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
